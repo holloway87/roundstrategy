@@ -1,4 +1,4 @@
-package gamedata;
+package com.teamgeist.roundstrategy.gamedata;
 
 import java.awt.Graphics2D;
 
