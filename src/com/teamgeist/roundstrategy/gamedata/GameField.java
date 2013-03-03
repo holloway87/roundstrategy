@@ -120,7 +120,7 @@ public class GameField implements Drawable, Movable
 		{
 			lastSuperiorTerrain.add(type);
 			// nw
-			if (type != left && type != top && type == right)
+			if (type != left && type != top && type == right && type == bottom)
 			{
 				terrain = terrainInfo[type][offset + 8];
 			}
@@ -129,7 +129,7 @@ public class GameField implements Drawable, Movable
 				terrain = terrainInfo[type][offset + 7];
 			}
 			// sw
-			else if (type != bottom && type != left && type == right) {
+			else if (type != bottom && type != left && type == right && type == top) {
 				terrain = terrainInfo[type][offset + 6];
 			}
 			// alone
@@ -144,12 +144,6 @@ public class GameField implements Drawable, Movable
 				lastSuperiorTerrain.remove(length);
 				terrain = terrainInfo[type][offset + 10];
 			}
-			// alone e
-			else if (type != top && type != right && type != bottom && type == left)
-			{
-				lastSuperiorTerrain.remove(length);
-				terrain = terrainInfo[type][offset + 11];
-			}
 			// alone s
 			else if (type == top && type != right && type != bottom && type != left)
 			{
@@ -159,7 +153,6 @@ public class GameField implements Drawable, Movable
 			// alone w
 			else if (type != top && type == right && type != bottom && type != left)
 			{
-				lastSuperiorTerrain.remove(length);
 				terrain = terrainInfo[type][offset + 13];
 			}
 		}
@@ -169,7 +162,7 @@ public class GameField implements Drawable, Movable
 		{
 			lastSuperiorTerrain.remove(length -1);
 			// ne
-			if (type != top && type != right) {
+			if (type != top && type != right && type == left && type == bottom) {
 				terrain = terrainInfo[type][offset + 2];
 			}
 			// e
@@ -177,8 +170,13 @@ public class GameField implements Drawable, Movable
 				terrain = terrainInfo[type][offset + 3];
 			}
 			// se
-			else if (type != bottom && type != right) {
+			else if (type != bottom && type != right && type == top) {
 				terrain = terrainInfo[type][offset + 4];
+			}
+			// alone e
+			else if (type != top && type != right && type != bottom && type == left)
+			{
+				terrain = terrainInfo[type][offset + 11];
 			}
 		}
 		// n

@@ -82,7 +82,7 @@ public class RoundStrategy extends JPanel implements Runnable
 					{0, 0, 1, 1, 0, 0, 1, 1, 1, 0},
 					{0, 0, 0, 0, 0, 0, 0, 1, 0, 0},
 					{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-					{0, 0, 0, 0, 1, 0, 0, 0, 0, 0},
+					{0, 0, 0, 0, 1, 1, 0, 0, 0, 0},
 					{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 				};
 			gameField.loadLevel(levelData, this);
@@ -167,7 +167,7 @@ public class RoundStrategy extends JPanel implements Runnable
 	{
 		super.paintComponent(g);
 		g.setColor(Color.black);
-		g.fillRect(0, 0, 640, 480);
+		g.fillRect(0, 0, getWidth(), getHeight());
 
 		if (null != gameField)
 		{
