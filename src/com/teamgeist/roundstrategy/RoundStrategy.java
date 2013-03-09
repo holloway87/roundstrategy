@@ -77,21 +77,21 @@ public class RoundStrategy extends JPanel implements Runnable
 		try
 		{
 			BufferedImage[][] terrains = loadTerrains();
-			BufferedImage[] hexagon = loadHexagon();
+			BufferedImage[] hexagon = loadFromFile("/resource/hexagon_one.png");
 			gameField = new GameField(terrains, hexagon, this);
 			int[][] levelData = {
 					{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 					{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-					{0, 0, 1, 1, 0, 0, 0, 1, 0, 0},
-					{0, 0, 1, 1, 0, 0, 1, 1, 1, 0},
-					{0, 0, 0, 0, 0, 0, 0, 1, 0, 0},
 					{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-					{0, 0, 0, 0, 1, 1, 0, 0, 0, 0},
 					{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-					{0, 0, 1, 1, 0, 0, 1, 1, 1, 0},
-					{0, 0, 0, 0, 0, 0, 0, 1, 0, 0},
 					{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-					{0, 0, 0, 0, 1, 1, 0, 0, 0, 0},
+					{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+					{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+					{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+					{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+					{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+					{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+					{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 					{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 				};
 			gameField.loadLevel(levelData, this);
@@ -105,28 +105,28 @@ public class RoundStrategy extends JPanel implements Runnable
 		
 	}
 
-	private BufferedImage[] loadHexagon() throws ImageLoadException
+	private BufferedImage[] loadFromFile(String filename) throws ImageLoadException
 	{
-		BufferedImage hexagon = null;
-		URL imgUrl = getClass().getResource("/resource/hexagon_one.png");
+		BufferedImage image = null;
+		URL imgUrl = getClass().getResource(filename);
 		try
 		{
-			hexagon = ImageIO.read(imgUrl);
+			image = ImageIO.read(imgUrl);
 		}
 		catch (IOException e)
 		{
 			throw new ImageLoadException(
-					"Could not load '/resource/hexagon_one.png'");
+					String.format("Could not load '%s'", filename));
 		}
 		BufferedImage[] data = {
-			hexagon
+			image
 		};
 		return data;
 	}
 
 	private BufferedImage[][] loadTerrains() throws ImageLoadException
 	{
-		BufferedImage tileset = null;
+		/*BufferedImage tileset = null;
 		URL imgUrl = getClass().getResource("/resource/tileset.png");
 		try
 		{
@@ -136,43 +136,15 @@ public class RoundStrategy extends JPanel implements Runnable
 		{
 			throw new ImageLoadException(
 					"Could not load '/resource/tileset.png'");
-		}
+		}*/
 
-		int tw = 80;
 		BufferedImage[][] terrains = {
-			loadFromTileset(tileset, 5, 0, tw),		// grass 1
-			loadFromTileset(tileset, 4, 1, tw),		// grass 2
-			loadFromTileset(tileset, 5, 1, tw),		// grass 3
-			loadFromTileset(tileset, 4, 0, tw),		// grass with green
-
-			loadFromTileset(tileset, 0, 0, tw),		// mud in green nw
-			loadFromTileset(tileset, 3, 0, tw),		// mud in green ne
-			loadFromTileset(tileset, 1, 0, tw),		// mud in green n 1
-			loadFromTileset(tileset, 2, 0, tw),		// mud in green n 2
-			loadFromTileset(tileset, 0, 1, tw),		// mud in green w 1
-			loadFromTileset(tileset, 0, 2, tw),		// mud in green w 2
-			loadFromTileset(tileset, 3, 1, tw),		// mud in green e 1
-			loadFromTileset(tileset, 3, 2, tw),		// mud in green e 2
-			loadFromTileset(tileset, 0, 3, tw),		// mud in green sw
-			loadFromTileset(tileset, 3, 3, tw),		// mud in green se
-			loadFromTileset(tileset, 1, 3, tw),		// mud in green s 1
-			loadFromTileset(tileset, 2, 3, tw),		// mud in green s 2
-			loadFromTileset(tileset, 6, 0, tw),		// mud in green alone 1
-			loadFromTileset(tileset, 6, 1, tw),		// mud in green alone 2
-			loadFromTileset(tileset, 5, 2, tw),		// mud in green alone n
-			loadFromTileset(tileset, 5, 3, tw),		// mud in green alone e
-			loadFromTileset(tileset, 4, 2, tw),		// mud in green alone s
-			loadFromTileset(tileset, 4, 3, tw),		// mud in green alone w
-
-			loadFromTileset(tileset, 2, 1, tw),		// mud 1
-			loadFromTileset(tileset, 1, 2, tw),		// mud 2
-			loadFromTileset(tileset, 2, 2, tw),		// mud 3
-			loadFromTileset(tileset, 1, 1, tw),		// mud with stone
+			loadFromFile("/resource/space.png")
 		};
 		return terrains;
 	}
 
-	private BufferedImage[] loadFromTileset(BufferedImage source,
+	/*private BufferedImage[] loadFromTileset(BufferedImage source,
 			int posX,int posY, int width)
 	{
 		BufferedImage[] subimage = {
@@ -182,7 +154,7 @@ public class RoundStrategy extends JPanel implements Runnable
 						width, width)
 		};
 		return subimage;
-	}
+	}*/
 
 	private void moveObjects()
 	{

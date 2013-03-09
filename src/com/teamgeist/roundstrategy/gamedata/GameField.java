@@ -23,8 +23,8 @@ public class GameField implements Drawable, Movable
 	private BufferedImage[] hexagon;
 	private Terrain[][] terrains;
 	private Terrain[][] paintTerrains;
-	private int[][] levelData;
-	private Vector<Integer> lastSuperiorTerrain;
+	//private int[][] levelData;
+	//private Vector<Integer> lastSuperiorTerrain;
 	private Vector<Hexagon> hexGrid;
 	private Vector<Hexagon> paintHexGrid;
 	@SuppressWarnings("unused")
@@ -42,6 +42,7 @@ public class GameField implements Drawable, Movable
 	 * 1: n, 2: ne, 3: e, 4: se, 5: s, 6: sw, 7: w, 8: nw,
 	 * 9: alone, 10: alone n, 11: alone e, 12: alone s, 13: alone w
 	 */
+	@SuppressWarnings("unused")
 	private static final int[][][] terrainInfo = {
 			/*
 			 * 0: grass
@@ -95,6 +96,41 @@ public class GameField implements Drawable, Movable
 
 	public void checkKeys(InputManager input)
 	{
+		// Terrains
+		for (int y = 0; y < terrains.length; y++)
+		{
+			for (int x = 0; x < terrains[y].length; x++)
+			{
+				if (input.getState(InputManager.SCROLL_UP))
+				{
+					terrains[y][x].setDy(scrollSpeed);
+				}
+				if (input.getState(InputManager.SCROLL_DOWN))
+				{
+					terrains[y][x].setDy(-scrollSpeed);
+				}
+				if (input.getState(InputManager.SCROLL_RIGHT))
+				{
+					terrains[y][x].setDx(-scrollSpeed);
+				}
+				if (input.getState(InputManager.SCROLL_LEFT))
+				{
+					terrains[y][x].setDx(scrollSpeed);
+				}
+				if (!input.getState(InputManager.SCROLL_UP) &&
+						!input.getState(InputManager.SCROLL_DOWN))
+				{
+					terrains[y][x].setDy(0);
+				}
+				if (!input.getState(InputManager.SCROLL_RIGHT) &&
+						!input.getState(InputManager.SCROLL_LEFT))
+				{
+					terrains[y][x].setDx(0);
+				}
+			}
+		}
+
+		// Hexagon Grid
 		for (ListIterator<Hexagon> it = hexGrid.listIterator();
 				it.hasNext();)
 		{
@@ -128,7 +164,7 @@ public class GameField implements Drawable, Movable
 		}
 	}
 
-	public int calcTerrain(int x, int y)
+	/*public int calcTerrain(int x, int y)
 	{
 		int type = levelData[y][x];
 		int[] terrain = {};
@@ -247,7 +283,7 @@ public class GameField implements Drawable, Movable
 		int index = (int)(Math.random() * terrain.length);
 
 		return terrain[index];
-	}
+	}*/
 
 	public void cloneObjects() {
 		cloneHexagons();
@@ -286,13 +322,13 @@ public class GameField implements Drawable, Movable
 			return;
 		}
 
-		/*for (int y = 0; y < paintTerrains.length; y++)
+		for (int y = 0; y < paintTerrains.length; y++)
 		{
 			for (int x = 0; x < paintTerrains[y].length; x++)
 			{
 				paintTerrains[y][x].drawObjects(g);
 			}
-		}*/
+		}
 
 		if (null != paintHexGrid)
 		{
@@ -320,22 +356,21 @@ public class GameField implements Drawable, Movable
 
 		this.hexGrid = new Vector<Hexagon>();
 
-		levelData = data;
-		lastSuperiorTerrain = new Vector<Integer>();
+		//levelData = data;
+		//lastSuperiorTerrain = new Vector<Integer>();
 
 		terrains = new Terrain[data.length][data[0].length];
 		for (int y = 0; y < data.length; y++)
 		{
 			for (int x = 0; x < data[y].length; x++)
 			{
-				int terrainInfo = calcTerrain(x, y);
-				BufferedImage[] image = terrainImages[terrainInfo];
+				int hexXOffset = (1 == y % 2 ? (int)(Hexagon.getHexwidth() * 0.75) : 0);
+				BufferedImage[] image = terrainImages[data[y][x]];
 				terrains[y][x] = new Terrain(
 						image,
-						offsetX + (x * image[0].getWidth()),
-						offsetY + (y * image[0].getHeight()),
+						(double)(offsetX + hexXOffset + (x * Hexagon.getHexwidth() * 1.5)),
+						(double)(offsetY + (y * Hexagon.getHexheight() * 0.5)),
 						0, parent);
-				int hexXOffset = (1 == y % 2 ? (int)(Hexagon.getHexwidth() * 0.75) : 0);
 				this.hexGrid.add(new Hexagon(
 						hexagon,
 						(double)(offsetX + hexXOffset + (x * Hexagon.getHexwidth() * 1.5)),
@@ -348,6 +383,14 @@ public class GameField implements Drawable, Movable
 	@Override
 	public void move(long delta)
 	{
+		for (int y = 0; y < terrains.length; y++)
+		{
+			for (int x = 0; x < terrains[y].length; x++)
+			{
+				terrains[y][x].move(delta);
+			}
+		}
+
 		for (ListIterator<Hexagon> it = hexGrid.listIterator();
 				it.hasNext();)
 		{
