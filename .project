@@ -14,4 +14,16 @@
 	<natures>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>src/resource/soldier.png</name>
+			<type>1</type>
+			<location>C:/Users/marvin/Documents/GitHub/roundstrategy/src/resource/soldier.png</location>
+		</link>
+		<link>
+			<name>src/com/teamgeist/roundstrategy/gamedata/Units.java</name>
+			<type>1</type>
+			<location>C:/Users/marvin/Documents/GitHub/roundstrategy/src/com/teamgeist/roundstrategy/gamedata/Units.java</location>
+		</link>
+	</linkedResources>
 </projectDescription>

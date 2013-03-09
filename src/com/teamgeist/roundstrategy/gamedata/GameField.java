@@ -21,6 +21,7 @@ public class GameField implements Drawable, Movable
 	private int scrollSpeed = 250;
 	private BufferedImage[][] terrainImages;
 	private BufferedImage[] hexagon;
+	private BufferedImage[] unit;
 	private Terrain[][] terrains;
 	private Terrain[][] paintTerrains;
 	//private int[][] levelData;
@@ -87,11 +88,12 @@ public class GameField implements Drawable, Movable
 	};
 
 
-	public GameField(BufferedImage[][] terrains, BufferedImage[] hexagon, RoundStrategy p)
+	public GameField(BufferedImage[][] terrains, BufferedImage[] hexagon, RoundStrategy p,BufferedImage[] unit)
 	{
 		this.terrainImages = terrains;
 		this.hexagon = hexagon;
 		this.parent = p;
+		this.unit = unit;
 	}
 
 	public void checkKeys(InputManager input)

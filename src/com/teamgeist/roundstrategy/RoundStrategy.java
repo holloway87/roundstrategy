@@ -78,7 +78,8 @@ public class RoundStrategy extends JPanel implements Runnable
 		{
 			BufferedImage[][] terrains = loadTerrains();
 			BufferedImage[] hexagon = loadFromFile("/resource/hexagon_one.png");
-			gameField = new GameField(terrains, hexagon, this);
+			BufferedImage[] unit = loadUnits();
+			gameField = new GameField(terrains, hexagon, this, unit);
 			int[][] levelData = {
 					{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 					{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -142,6 +143,22 @@ public class RoundStrategy extends JPanel implements Runnable
 			loadFromFile("/resource/space.png")
 		};
 		return terrains;
+	}
+	private BufferedImage[] loadUnits() throws ImageLoadException
+	{
+		BufferedImage unit = null;
+		URL imgUrl = getClass().getResource("/resource/soldier.png");
+		try
+		{
+			unit = ImageIO.read(imgUrl);
+		}
+		catch (IOException ex)
+		{
+			throw new ImageLoadException(
+					"Could not load '/resource/soldier.png'");
+		}
+		BufferedImage[] data = {unit};
+		return data;
 	}
 
 	/*private BufferedImage[] loadFromTileset(BufferedImage source,
