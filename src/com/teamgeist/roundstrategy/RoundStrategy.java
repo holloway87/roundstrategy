@@ -24,6 +24,7 @@ public class RoundStrategy extends JPanel implements Runnable
 	private long last = 0;
 	private long fps = 0;
 	private GameField gameField;
+	private InputManager input;
 
 
 	/**
@@ -36,11 +37,14 @@ public class RoundStrategy extends JPanel implements Runnable
 
 	public RoundStrategy(int w, int h)
 	{
+		input = new InputManager();
+
 		this.setPreferredSize(new Dimension(w, h));
 		frame = new JFrame("Game");
 		frame.setLocation(100, 100);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.add(this);
+		frame.addKeyListener(input);
 		frame.pack();
 		frame.setVisible(true);
 
@@ -52,13 +56,12 @@ public class RoundStrategy extends JPanel implements Runnable
 
 	private void checkKeys()
 	{
-		// TODO Auto-generated method stub
-		
+		gameField.checkKeys(input);
 	}
 
 	private void cloneObjects()
 	{
-		gameField.cloneTerrains();
+		gameField.cloneObjects();
 	}
 
 	private void computeDelta()
@@ -74,11 +77,17 @@ public class RoundStrategy extends JPanel implements Runnable
 		try
 		{
 			BufferedImage[][] terrains = loadTerrains();
-			gameField = new GameField(terrains);
+			BufferedImage[] hexagon = loadHexagon();
+			gameField = new GameField(terrains, hexagon, this);
 			int[][] levelData = {
 					{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 					{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 					{0, 0, 1, 1, 0, 0, 0, 1, 0, 0},
+					{0, 0, 1, 1, 0, 0, 1, 1, 1, 0},
+					{0, 0, 0, 0, 0, 0, 0, 1, 0, 0},
+					{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+					{0, 0, 0, 0, 1, 1, 0, 0, 0, 0},
+					{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 					{0, 0, 1, 1, 0, 0, 1, 1, 1, 0},
 					{0, 0, 0, 0, 0, 0, 0, 1, 0, 0},
 					{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -94,6 +103,25 @@ public class RoundStrategy extends JPanel implements Runnable
 	{
 		// TODO Auto-generated method stub
 		
+	}
+
+	private BufferedImage[] loadHexagon() throws ImageLoadException
+	{
+		BufferedImage hexagon = null;
+		URL imgUrl = getClass().getResource("/resource/hexagon_one.png");
+		try
+		{
+			hexagon = ImageIO.read(imgUrl);
+		}
+		catch (IOException e)
+		{
+			throw new ImageLoadException(
+					"Could not load '/resource/hexagon_one.png'");
+		}
+		BufferedImage[] data = {
+			hexagon
+		};
+		return data;
 	}
 
 	private BufferedImage[][] loadTerrains() throws ImageLoadException
@@ -158,8 +186,7 @@ public class RoundStrategy extends JPanel implements Runnable
 
 	private void moveObjects()
 	{
-		// TODO Auto-generated method stub
-		
+		gameField.move(delta);
 	}
 
 	@Override

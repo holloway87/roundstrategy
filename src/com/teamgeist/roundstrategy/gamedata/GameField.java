@@ -2,11 +2,15 @@ package com.teamgeist.roundstrategy.gamedata;
 
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
+import java.util.ListIterator;
 import java.util.Vector;
 
+import com.teamgeist.roundstrategy.InputManager;
 import com.teamgeist.roundstrategy.RoundStrategy;
 import com.teamgeist.roundstrategy.engine.Drawable;
+//import com.teamgeist.roundstrategy.engine.HexagonGrid;
 import com.teamgeist.roundstrategy.engine.Movable;
+import com.teamgeist.roundstrategy.engine.terrain.Hexagon;
 import com.teamgeist.roundstrategy.engine.terrain.Terrain;
 
 public class GameField implements Drawable, Movable
@@ -14,11 +18,17 @@ public class GameField implements Drawable, Movable
 
 	private int offsetX = 0;
 	private int offsetY = 0;
+	private int scrollSpeed = 250;
 	private BufferedImage[][] terrainImages;
+	private BufferedImage[] hexagon;
 	private Terrain[][] terrains;
 	private Terrain[][] paintTerrains;
 	private int[][] levelData;
 	private Vector<Integer> lastSuperiorTerrain;
+	private Vector<Hexagon> hexGrid;
+	private Vector<Hexagon> paintHexGrid;
+	@SuppressWarnings("unused")
+	private RoundStrategy parent;
 
 
 	/*
@@ -76,9 +86,46 @@ public class GameField implements Drawable, Movable
 	};
 
 
-	public GameField(BufferedImage[][] terrains)
+	public GameField(BufferedImage[][] terrains, BufferedImage[] hexagon, RoundStrategy p)
 	{
 		this.terrainImages = terrains;
+		this.hexagon = hexagon;
+		this.parent = p;
+	}
+
+	public void checkKeys(InputManager input)
+	{
+		for (ListIterator<Hexagon> it = hexGrid.listIterator();
+				it.hasNext();)
+		{
+			Hexagon hex = it.next();
+			if (input.getState(InputManager.SCROLL_UP))
+			{
+				hex.setDy(scrollSpeed);
+			}
+			if (input.getState(InputManager.SCROLL_DOWN))
+			{
+				hex.setDy(-scrollSpeed);
+			}
+			if (input.getState(InputManager.SCROLL_RIGHT))
+			{
+				hex.setDx(-scrollSpeed);
+			}
+			if (input.getState(InputManager.SCROLL_LEFT))
+			{
+				hex.setDx(scrollSpeed);
+			}
+			if (!input.getState(InputManager.SCROLL_UP) &&
+					!input.getState(InputManager.SCROLL_DOWN))
+			{
+				hex.setDy(0);
+			}
+			if (!input.getState(InputManager.SCROLL_RIGHT) &&
+					!input.getState(InputManager.SCROLL_LEFT))
+			{
+				hex.setDx(0);
+			}
+		}
 	}
 
 	public int calcTerrain(int x, int y)
@@ -202,6 +249,16 @@ public class GameField implements Drawable, Movable
 		return terrain[index];
 	}
 
+	public void cloneObjects() {
+		cloneHexagons();
+		cloneTerrains();
+	}
+
+	@SuppressWarnings("unchecked")
+	public void cloneHexagons() {
+		paintHexGrid = (Vector<Hexagon>) hexGrid.clone();
+	}
+
 	public void cloneTerrains()
 	{
 		paintTerrains = terrains.clone();
@@ -229,11 +286,21 @@ public class GameField implements Drawable, Movable
 			return;
 		}
 
-		for (int y = 0; y < paintTerrains.length; y++)
+		/*for (int y = 0; y < paintTerrains.length; y++)
 		{
 			for (int x = 0; x < paintTerrains[y].length; x++)
 			{
 				paintTerrains[y][x].drawObjects(g);
+			}
+		}*/
+
+		if (null != paintHexGrid)
+		{
+			for (ListIterator<Hexagon> it = paintHexGrid.listIterator();
+					it.hasNext();)
+			{
+				Hexagon grid = it.next();
+				grid.drawObjects(g);
 			}
 		}
 	}
@@ -241,10 +308,8 @@ public class GameField implements Drawable, Movable
 	@Override
 	public void doLogic(long delta)
 	{
+		
 	}
-
-	@Override
-	public void move(long delta) {}
 
 	public void loadLevel(int[][] data, RoundStrategy parent)
 	{
@@ -252,6 +317,8 @@ public class GameField implements Drawable, Movable
 		{
 			return;
 		}
+
+		this.hexGrid = new Vector<Hexagon>();
 
 		levelData = data;
 		lastSuperiorTerrain = new Vector<Integer>();
@@ -268,7 +335,24 @@ public class GameField implements Drawable, Movable
 						offsetX + (x * image[0].getWidth()),
 						offsetY + (y * image[0].getHeight()),
 						0, parent);
+				int hexXOffset = (1 == y % 2 ? (int)(Hexagon.getHexwidth() * 0.75) : 0);
+				this.hexGrid.add(new Hexagon(
+						hexagon,
+						(double)(offsetX + hexXOffset + (x * Hexagon.getHexwidth() * 1.5)),
+						(double)(offsetY + (y * Hexagon.getHexheight() * 0.5)),
+						0, parent));
 			}
+		}
+	}
+
+	@Override
+	public void move(long delta)
+	{
+		for (ListIterator<Hexagon> it = hexGrid.listIterator();
+				it.hasNext();)
+		{
+			Hexagon hexGrid = it.next();
+			hexGrid.move(delta);
 		}
 	}
 
