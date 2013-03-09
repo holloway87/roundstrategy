@@ -4,16 +4,13 @@ package com.teamgeist.roundstrategy;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.net.URL;
 
-import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import com.teamgeist.roundstrategy.exceptions.ImageLoadException;
 import com.teamgeist.roundstrategy.gamedata.GameField;
+import com.teamgeist.roundstrategy.gamedata.ResourceManager;
 
 public class RoundStrategy extends JPanel implements Runnable
 {
@@ -25,6 +22,7 @@ public class RoundStrategy extends JPanel implements Runnable
 	private long fps = 0;
 	private GameField gameField;
 	private InputManager input;
+	private ResourceManager resources;
 
 
 	/**
@@ -38,6 +36,7 @@ public class RoundStrategy extends JPanel implements Runnable
 	public RoundStrategy(int w, int h)
 	{
 		input = new InputManager();
+		resources = new ResourceManager();
 
 		this.setPreferredSize(new Dimension(w, h));
 		frame = new JFrame("Game");
@@ -76,10 +75,9 @@ public class RoundStrategy extends JPanel implements Runnable
 		last = System.nanoTime();
 		try
 		{
-			BufferedImage[][] terrains = loadTerrains();
-			BufferedImage[] hexagon = loadFromFile("/resource/hexagon_one.png");
-			BufferedImage[] unit = loadUnits();
-			gameField = new GameField(terrains, hexagon, this, unit);
+			resources.loadTerrains();
+			resources.loadHexagon();
+			gameField = new GameField(resources, this);
 			int[][] levelData = {
 					{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 					{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -105,73 +103,6 @@ public class RoundStrategy extends JPanel implements Runnable
 		// TODO Auto-generated method stub
 		
 	}
-
-	private BufferedImage[] loadFromFile(String filename) throws ImageLoadException
-	{
-		BufferedImage image = null;
-		URL imgUrl = getClass().getResource(filename);
-		try
-		{
-			image = ImageIO.read(imgUrl);
-		}
-		catch (IOException e)
-		{
-			throw new ImageLoadException(
-					String.format("Could not load '%s'", filename));
-		}
-		BufferedImage[] data = {
-			image
-		};
-		return data;
-	}
-
-	private BufferedImage[][] loadTerrains() throws ImageLoadException
-	{
-		/*BufferedImage tileset = null;
-		URL imgUrl = getClass().getResource("/resource/tileset.png");
-		try
-		{
-			tileset = ImageIO.read(imgUrl);
-		}
-		catch (IOException e)
-		{
-			throw new ImageLoadException(
-					"Could not load '/resource/tileset.png'");
-		}*/
-
-		BufferedImage[][] terrains = {
-			loadFromFile("/resource/space.png")
-		};
-		return terrains;
-	}
-	private BufferedImage[] loadUnits() throws ImageLoadException
-	{
-		BufferedImage unit = null;
-		URL imgUrl = getClass().getResource("/resource/soldier.png");
-		try
-		{
-			unit = ImageIO.read(imgUrl);
-		}
-		catch (IOException ex)
-		{
-			throw new ImageLoadException(
-					"Could not load '/resource/soldier.png'");
-		}
-		BufferedImage[] data = {unit};
-		return data;
-	}
-
-	/*private BufferedImage[] loadFromTileset(BufferedImage source,
-			int posX,int posY, int width)
-	{
-		BufferedImage[] subimage = {
-				source.getSubimage(
-						posX * width,
-						posY * width,
-						width, width)
-		};
-		return subimage;
-	}*/
 
 	private void moveObjects()
 	{
