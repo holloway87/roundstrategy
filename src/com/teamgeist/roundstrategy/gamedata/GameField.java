@@ -308,7 +308,7 @@ public class GameField implements Drawable, Movable
 	@Override
 	public void doLogic(long delta)
 	{
-		
+		// Hier mach ich jetz was
 	}
 
 	public void loadLevel(int[][] data, RoundStrategy parent)
