@@ -10,6 +10,7 @@ import com.teamgeist.roundstrategy.RoundStrategy;
 import com.teamgeist.roundstrategy.engine.Drawable;
 //import com.teamgeist.roundstrategy.engine.HexagonGrid;
 import com.teamgeist.roundstrategy.engine.Movable;
+import com.teamgeist.roundstrategy.engine.objects.Nebula;
 import com.teamgeist.roundstrategy.engine.terrain.Hexagon;
 import com.teamgeist.roundstrategy.engine.terrain.Terrain;
 
@@ -22,10 +23,12 @@ public class GameField implements Drawable, Movable
 	private Terrain[][] terrains;
 	private Terrain[][] paintTerrains;
 	private Vector<Hexagon> hexGrid;
+	private Vector<Nebula> nebulae;
 	private Vector<Hexagon> paintHexGrid;
 	@SuppressWarnings("unused")
 	private RoundStrategy parent;
 	private ResourceManager resources;
+	private Vector<Nebula> paintNebulae;
 
 
 	public GameField(ResourceManager resources, RoundStrategy p)
@@ -102,16 +105,57 @@ public class GameField implements Drawable, Movable
 				hex.setDx(0);
 			}
 		}
+
+		// Nebulae
+		for (ListIterator<Nebula> it = nebulae.listIterator();
+				it.hasNext();)
+		{
+			Nebula nebula = it.next();
+			if (input.getState(InputManager.SCROLL_UP))
+			{
+				nebula.setDy(scrollSpeed);
+			}
+			if (input.getState(InputManager.SCROLL_DOWN))
+			{
+				nebula.setDy(-scrollSpeed);
+			}
+			if (input.getState(InputManager.SCROLL_RIGHT))
+			{
+				nebula.setDx(-scrollSpeed);
+			}
+			if (input.getState(InputManager.SCROLL_LEFT))
+			{
+				nebula.setDx(scrollSpeed);
+			}
+			if (!input.getState(InputManager.SCROLL_UP) &&
+					!input.getState(InputManager.SCROLL_DOWN))
+			{
+				nebula.setDy(0);
+			}
+			if (!input.getState(InputManager.SCROLL_RIGHT) &&
+					!input.getState(InputManager.SCROLL_LEFT))
+			{
+				nebula.setDx(0);
+			}
+		}
 	}
 
 	public void cloneObjects() {
 		cloneHexagons();
+		cloneNebulae();
 		cloneTerrains();
 	}
 
 	@SuppressWarnings("unchecked")
-	public void cloneHexagons() {
+	public void cloneHexagons()
+	{
 		paintHexGrid = (Vector<Hexagon>) hexGrid.clone();
+	}
+
+	@SuppressWarnings("unchecked")
+	public void cloneNebulae()
+	{
+		paintNebulae = (Vector<Nebula>) nebulae.clone();
 	}
 
 	public void cloneTerrains()
@@ -149,6 +193,16 @@ public class GameField implements Drawable, Movable
 			}
 		}
 
+		if (null != paintNebulae)
+		{
+			for (ListIterator<Nebula> it = paintNebulae.listIterator();
+					it.hasNext();)
+			{
+				Nebula nebula = it.next();
+				nebula.drawObjects(g);
+			}
+		}
+
 		if (null != paintHexGrid)
 		{
 			for (ListIterator<Hexagon> it = paintHexGrid.listIterator();
@@ -174,6 +228,7 @@ public class GameField implements Drawable, Movable
 		}
 
 		this.hexGrid = new Vector<Hexagon>();
+		this.nebulae = new Vector<Nebula>();
 
 		//levelData = data;
 		//lastSuperiorTerrain = new Vector<Integer>();
@@ -184,18 +239,23 @@ public class GameField implements Drawable, Movable
 		{
 			for (int x = 0; x < data[y].length; x++)
 			{
-				int hexXOffset = (1 == y % 2 ? (int)(Hexagon.getHexwidth() * 0.75) : 0);
+				int hexXOffset = (1 == y % 2
+						? (int)(Hexagon.getHexwidth() * 0.75)
+						: 0);
+				double fieldX = (double)(offsetX + hexXOffset + (x * Hexagon.getHexwidth() * 1.5));
+				double fieldY = (double)(offsetY + (y * Hexagon.getHexheight() * 0.5));
 				BufferedImage[] image = terrainImages[data[y][x]];
 				terrains[y][x] = new Terrain(
-						image,
-						(double)(offsetX + hexXOffset + (x * Hexagon.getHexwidth() * 1.5)),
-						(double)(offsetY + (y * Hexagon.getHexheight() * 0.5)),
-						0, parent);
+						image, fieldX, fieldY, 0, parent);
+				if (2 == x && 6 == y)
+				{
+					this.nebulae.add(new Nebula(
+							resources.getNebula(),
+							fieldX, fieldY, 0, parent));
+				}
 				this.hexGrid.add(new Hexagon(
 						resources.getHexagon(),
-						(double)(offsetX + hexXOffset + (x * Hexagon.getHexwidth() * 1.5)),
-						(double)(offsetY + (y * Hexagon.getHexheight() * 0.5)),
-						0, parent));
+						fieldX, fieldY, 0, parent));
 			}
 		}
 	}
@@ -209,6 +269,13 @@ public class GameField implements Drawable, Movable
 			{
 				terrains[y][x].move(delta);
 			}
+		}
+
+		for (ListIterator<Nebula> it = nebulae.listIterator();
+				it.hasNext();)
+		{
+			Nebula nebula = it.next();
+			nebula.move(delta);
 		}
 
 		for (ListIterator<Hexagon> it = hexGrid.listIterator();

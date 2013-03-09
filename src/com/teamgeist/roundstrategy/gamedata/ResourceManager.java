@@ -13,6 +13,7 @@ public class ResourceManager
 
 	private BufferedImage[][] terrains;
 	private BufferedImage[] hexagon;
+	private BufferedImage[] nebula;
 
 	public ResourceManager()
 	{
@@ -39,13 +40,21 @@ public class ResourceManager
 
 	public void loadHexagon()
 	{
-		hexagon = loadFromFile("/resource/hexagon_one.png");
+		hexagon = loadFromFile("/resource/hud/hexagon_one.png");
+	}
+
+	public void loadNebula()
+	{
+		nebula = loadFromFile("/resource/objects/nebulae/nebular_static_blue_01_fina.png");
 	}
 
 	public void loadTerrains()
 	{
 		BufferedImage[][] terrains = {
-			loadFromFile("/resource/space.png")
+			loadFromFile("/resource/tiles/space01.png"),
+			loadFromFile("/resource/tiles/space02.png"),
+			loadFromFile("/resource/tiles/space03.png"),
+			loadFromFile("/resource/tiles/asteroids01.png"),
 		};
 		this.terrains = terrains;
 	}
@@ -57,6 +66,15 @@ public class ResourceManager
 			loadHexagon();
 		}
 		return hexagon;
+	}
+
+	public BufferedImage[] getNebula()
+	{
+		if (null == nebula)
+		{
+			loadNebula();
+		}
+		return nebula;
 	}
 
 	public BufferedImage[][] getTerrains()
