@@ -114,13 +114,14 @@ public class RoundStrategy extends JPanel implements Runnable
 				{2, 1, 20},
 				{3, 2, 18},
 			};
-			gameField.loadLevel(levelData, objectData);
+			gameField.loadLevel(levelData, objectData, -500, -200);
 		}
 		catch (ImageLoadException e) {}
 	}
 
 	private void doLogic()
 	{
+		gameField.doLogic(delta);
 	}
 
 	private void moveObjects()

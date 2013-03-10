@@ -15,8 +15,6 @@ import com.teamgeist.roundstrategy.engine.terrain.Hexagon;
 public class GameField implements Drawable, Movable
 {
 
-	private int offsetX = 0;
-	private int offsetY = 0;
 	private int scrollSpeed = 250;
 	private int[][] levelData;
 	private Vector<FieldSprite> fieldObjects;
@@ -123,10 +121,55 @@ public class GameField implements Drawable, Movable
 	@Override
 	public void doLogic(long delta)
 	{
-		// Hier mach ich jetz was
+		boolean resetX = false;
+		boolean resetY = false;
+		int lastField = getFieldsHeight() * getFieldsWidth() -1;
+		FieldSprite first = fieldObjects.elementAt(0);
+		FieldSprite last = fieldObjects.elementAt(lastField);
+		int imageWidth = first.getImages()[0].getWidth();
+		int imageHeight = first.getImages()[0].getHeight();
+		double firstX = first.getX();
+		double lastX = last.getX() + imageWidth;
+		double firstY = first.getY();
+		double lastY = last.getY() + imageHeight;
+		
+		if ((-(imageWidth * 0.75) < firstX && 0 < first.getDx()) ||
+				(parent.getWidth() + (imageWidth * 0.75) > lastX && 0 > first.getDx()))
+		{
+			resetX = true;
+		}
+		if ((-imageHeight < firstY && 0 < first.getDy()) ||
+				(parent.getHeight() + imageHeight > lastY && 0 > first.getDy()))
+		{
+			resetY = true;
+		}
+		if (resetX)
+		{
+			for (ListIterator<FieldSprite> it = fieldObjects.listIterator();
+					it.hasNext();)
+			{
+				FieldSprite field = it.next();
+				field.setDx(0);
+			}
+		}
+		if (resetY)
+		{
+			for (ListIterator<FieldSprite> it = fieldObjects.listIterator();
+					it.hasNext();)
+			{
+				FieldSprite field = it.next();
+				field.setDy(0);
+			}
+		}
 	}
 
 	public void loadLevel(int[][] data, int[][] objects)
+	{
+		loadLevel(data, objects, (int)-(Hexagon.getHexwidth() * 0.75),
+				-Hexagon.getHexheight());
+	}
+
+	public void loadLevel(int[][] data, int[][] objects, int offsetX, int offsetY)
 	{
 		if (0 == data.length)
 		{
@@ -186,7 +229,6 @@ public class GameField implements Drawable, Movable
 	@Override
 	public void move(long delta)
 	{
-
 		for (ListIterator<FieldSprite> it = fieldObjects.listIterator();
 				it.hasNext();)
 		{
