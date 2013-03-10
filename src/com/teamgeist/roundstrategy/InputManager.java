@@ -10,16 +10,19 @@ public class InputManager implements KeyListener
 	public static final int SCROLL_DOWN = 1;
 	public static final int SCROLL_LEFT = 2;
 	public static final int SCROLL_RIGHT = 3;
+	public static final int SHOW_GRID = 4;
 
 	private boolean[] states;
 
 	public InputManager()
 	{
-		states = new boolean[4];
-		for (int i = 0; i < 4; i++)
+		int length = 5;
+		states = new boolean[length];
+		for (int i = 0; i < length; i++)
 		{
 			states[i] = false;
 		}
+		states[SHOW_GRID] = true;
 	}
 
 	public boolean getState(int key)
@@ -63,6 +66,9 @@ public class InputManager implements KeyListener
 			break;
 		case KeyEvent.VK_RIGHT:
 			states[SCROLL_RIGHT] = false;
+			break;
+		case KeyEvent.VK_G:
+			states[SHOW_GRID] = !states[SHOW_GRID];
 			break;
 		}
 	}

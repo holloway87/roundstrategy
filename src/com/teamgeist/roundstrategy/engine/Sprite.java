@@ -61,6 +61,11 @@ public abstract class Sprite extends Double implements Drawable, Movable
 		g.drawImage(pics[currentpic], (int) x, (int) y, null);
 	}
 
+	public long getDelay()
+	{
+		return delay;
+	}
+
 	/**
 	 * Get horizontal speed.
 	 *
@@ -79,6 +84,11 @@ public abstract class Sprite extends Double implements Drawable, Movable
 	public double getDy()
 	{
 		return dy;
+	}
+
+	public BufferedImage[] getImages()
+	{
+		return pics;
 	}
 
 	@Override

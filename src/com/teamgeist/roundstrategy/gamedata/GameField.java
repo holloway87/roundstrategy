@@ -8,11 +8,9 @@ import java.util.Vector;
 import com.teamgeist.roundstrategy.InputManager;
 import com.teamgeist.roundstrategy.RoundStrategy;
 import com.teamgeist.roundstrategy.engine.Drawable;
-//import com.teamgeist.roundstrategy.engine.HexagonGrid;
+import com.teamgeist.roundstrategy.engine.FieldSprite;
 import com.teamgeist.roundstrategy.engine.Movable;
-import com.teamgeist.roundstrategy.engine.objects.Nebula;
 import com.teamgeist.roundstrategy.engine.terrain.Hexagon;
-import com.teamgeist.roundstrategy.engine.terrain.Terrain;
 
 public class GameField implements Drawable, Movable
 {
@@ -20,196 +18,104 @@ public class GameField implements Drawable, Movable
 	private int offsetX = 0;
 	private int offsetY = 0;
 	private int scrollSpeed = 250;
-	private Terrain[][] terrains;
-	private Terrain[][] paintTerrains;
-	private Vector<Hexagon> hexGrid;
-	private Vector<Nebula> nebulae;
-	private Vector<Hexagon> paintHexGrid;
-	@SuppressWarnings("unused")
+	private int[][] levelData;
+	private Vector<FieldSprite> fieldObjects;
 	private RoundStrategy parent;
 	private ResourceManager resources;
-	private Vector<Nebula> paintNebulae;
+	private boolean showGrid;
 
 
 	public GameField(ResourceManager resources, RoundStrategy p)
 	{
 		this.resources = resources;
 		this.parent = p;
+		this.showGrid = true;
 	}
 
 	public void checkKeys(InputManager input)
 	{
-		// Terrains
-		for (int y = 0; y < terrains.length; y++)
+		// show grid?
+		showGrid = input.getState(InputManager.SHOW_GRID);
+
+		int newSpeedX = 0;
+		int newSpeedY = 0;
+		if (input.getState(InputManager.SCROLL_UP))
 		{
-			for (int x = 0; x < terrains[y].length; x++)
-			{
-				if (input.getState(InputManager.SCROLL_UP))
-				{
-					terrains[y][x].setDy(scrollSpeed);
-				}
-				if (input.getState(InputManager.SCROLL_DOWN))
-				{
-					terrains[y][x].setDy(-scrollSpeed);
-				}
-				if (input.getState(InputManager.SCROLL_RIGHT))
-				{
-					terrains[y][x].setDx(-scrollSpeed);
-				}
-				if (input.getState(InputManager.SCROLL_LEFT))
-				{
-					terrains[y][x].setDx(scrollSpeed);
-				}
-				if (!input.getState(InputManager.SCROLL_UP) &&
-						!input.getState(InputManager.SCROLL_DOWN))
-				{
-					terrains[y][x].setDy(0);
-				}
-				if (!input.getState(InputManager.SCROLL_RIGHT) &&
-						!input.getState(InputManager.SCROLL_LEFT))
-				{
-					terrains[y][x].setDx(0);
-				}
-			}
+			newSpeedY = scrollSpeed;
+		}
+		if (input.getState(InputManager.SCROLL_DOWN))
+		{
+			newSpeedY = -scrollSpeed;
+		}
+		if (input.getState(InputManager.SCROLL_RIGHT))
+		{
+			newSpeedX = -scrollSpeed;
+		}
+		if (input.getState(InputManager.SCROLL_LEFT))
+		{
+			newSpeedX = scrollSpeed;
 		}
 
-		// Hexagon Grid
-		for (ListIterator<Hexagon> it = hexGrid.listIterator();
+		for (ListIterator<FieldSprite> it = fieldObjects.listIterator();
 				it.hasNext();)
 		{
-			Hexagon hex = it.next();
-			if (input.getState(InputManager.SCROLL_UP))
-			{
-				hex.setDy(scrollSpeed);
-			}
-			if (input.getState(InputManager.SCROLL_DOWN))
-			{
-				hex.setDy(-scrollSpeed);
-			}
-			if (input.getState(InputManager.SCROLL_RIGHT))
-			{
-				hex.setDx(-scrollSpeed);
-			}
-			if (input.getState(InputManager.SCROLL_LEFT))
-			{
-				hex.setDx(scrollSpeed);
-			}
-			if (!input.getState(InputManager.SCROLL_UP) &&
-					!input.getState(InputManager.SCROLL_DOWN))
-			{
-				hex.setDy(0);
-			}
-			if (!input.getState(InputManager.SCROLL_RIGHT) &&
-					!input.getState(InputManager.SCROLL_LEFT))
-			{
-				hex.setDx(0);
-			}
-		}
-
-		// Nebulae
-		for (ListIterator<Nebula> it = nebulae.listIterator();
-				it.hasNext();)
-		{
-			Nebula nebula = it.next();
-			if (input.getState(InputManager.SCROLL_UP))
-			{
-				nebula.setDy(scrollSpeed);
-			}
-			if (input.getState(InputManager.SCROLL_DOWN))
-			{
-				nebula.setDy(-scrollSpeed);
-			}
-			if (input.getState(InputManager.SCROLL_RIGHT))
-			{
-				nebula.setDx(-scrollSpeed);
-			}
-			if (input.getState(InputManager.SCROLL_LEFT))
-			{
-				nebula.setDx(scrollSpeed);
-			}
-			if (!input.getState(InputManager.SCROLL_UP) &&
-					!input.getState(InputManager.SCROLL_DOWN))
-			{
-				nebula.setDy(0);
-			}
-			if (!input.getState(InputManager.SCROLL_RIGHT) &&
-					!input.getState(InputManager.SCROLL_LEFT))
-			{
-				nebula.setDx(0);
-			}
+			FieldSprite field = it.next();
+			field.setDx(newSpeedX);
+			field.setDy(newSpeedY);
 		}
 	}
 
-	public void cloneObjects() {
-		cloneHexagons();
-		cloneNebulae();
-		cloneTerrains();
+	public void cloneObjects()
+	{
 	}
 
-	@SuppressWarnings("unchecked")
-	public void cloneHexagons()
+	public FieldSprite createSpaceObject(BufferedImage[] i, double x, double y,
+			long delay)
 	{
-		paintHexGrid = (Vector<Hexagon>) hexGrid.clone();
-	}
+		int width = i[0].getWidth();
+		int height = i[0].getHeight();
+		int hexWidth = Hexagon.getHexwidth();
+		int hexHeight = Hexagon.getHexheight();
 
-	@SuppressWarnings("unchecked")
-	public void cloneNebulae()
-	{
-		paintNebulae = (Vector<Nebula>) nebulae.clone();
-	}
+		x = x - (width / 2) + (hexWidth / 2);
+		y = y - (height / 2) + (hexHeight / 2);
 
-	public void cloneTerrains()
-	{
-		paintTerrains = terrains.clone();
+		return new FieldSprite(i, x, y, delay, parent);
 	}
 
 	public int getFieldsWidth()
 	{
-		if (0 == terrains.length)
+		if (0 == levelData.length)
 		{
 			return 0;
 		}
-		return terrains[0].length;
+		return levelData[0].length;
 	}
 
 	public int getFieldsHeight()
 	{
-		return terrains.length;
+		return levelData.length;
 	}
 
 	@Override
 	public void drawObjects(Graphics g)
 	{
-		if (0 == paintTerrains.length)
-		{
-			return;
-		}
 
-		for (int y = 0; y < paintTerrains.length; y++)
+		if (null != fieldObjects)
 		{
-			for (int x = 0; x < paintTerrains[y].length; x++)
-			{
-				paintTerrains[y][x].drawObjects(g);
-			}
-		}
-
-		if (null != paintNebulae)
-		{
-			for (ListIterator<Nebula> it = paintNebulae.listIterator();
+			for (ListIterator<FieldSprite> it = fieldObjects.listIterator();
 					it.hasNext();)
 			{
-				Nebula nebula = it.next();
-				nebula.drawObjects(g);
-			}
-		}
-
-		if (null != paintHexGrid)
-		{
-			for (ListIterator<Hexagon> it = paintHexGrid.listIterator();
-					it.hasNext();)
-			{
-				Hexagon grid = it.next();
-				grid.drawObjects(g);
+				FieldSprite field = it.next();
+				if ((!showGrid && field.isGrid()) ||
+						0 > field.getX() + field.getWidth() ||
+						0 > field.getY() + field.getHeight() ||
+						parent.getWidth() < field.getX() ||
+						parent.getHeight() < field.getY())
+				{
+					continue;
+				}
+				field.drawObjects(g);
 			}
 		}
 	}
@@ -220,20 +126,17 @@ public class GameField implements Drawable, Movable
 		// Hier mach ich jetz was
 	}
 
-	public void loadLevel(int[][] data, RoundStrategy parent)
+	public void loadLevel(int[][] data, int[][] objects)
 	{
 		if (0 == data.length)
 		{
 			return;
 		}
 
-		this.hexGrid = new Vector<Hexagon>();
-		this.nebulae = new Vector<Nebula>();
+		this.fieldObjects = new Vector<FieldSprite>();
 
-		//levelData = data;
-		//lastSuperiorTerrain = new Vector<Integer>();
+		levelData = data;
 
-		terrains = new Terrain[data.length][data[0].length];
 		BufferedImage[][] terrainImages = resources.getTerrains();
 		for (int y = 0; y < data.length; y++)
 		{
@@ -245,17 +148,37 @@ public class GameField implements Drawable, Movable
 				double fieldX = (double)(offsetX + hexXOffset + (x * Hexagon.getHexwidth() * 1.5));
 				double fieldY = (double)(offsetY + (y * Hexagon.getHexheight() * 0.5));
 				BufferedImage[] image = terrainImages[data[y][x]];
-				terrains[y][x] = new Terrain(
-						image, fieldX, fieldY, 0, parent);
-				if (2 == x && 6 == y)
-				{
-					this.nebulae.add(new Nebula(
-							resources.getNebula(),
-							fieldX, fieldY, 0, parent));
-				}
-				this.hexGrid.add(new Hexagon(
+				fieldObjects.add(new FieldSprite(
+						image, fieldX, fieldY, 0, parent));
+			}
+		}
+		for (int i = 0; i < objects.length; i++)
+		{
+			int x = objects[i][1];
+			int y = objects[i][2];
+			int hexXOffset = (1 == y % 2
+					? (int)(Hexagon.getHexwidth() * 0.75)
+					: 0);
+			double fieldX = (double)(offsetX + hexXOffset + (x * Hexagon.getHexwidth() * 1.5));
+			double fieldY = (double)(offsetY + (y * Hexagon.getHexheight() * 0.5));
+			fieldObjects.add(createSpaceObject(
+					resources.getObjects()[objects[i][0]],
+					fieldX, fieldY, 0));
+		}
+		for (int y = 0; y < data.length; y++)
+		{
+			for (int x = 0; x < data[y].length; x++)
+			{
+				int hexXOffset = (1 == y % 2
+						? (int)(Hexagon.getHexwidth() * 0.75)
+						: 0);
+				double fieldX = (double)(offsetX + hexXOffset + (x * Hexagon.getHexwidth() * 1.5));
+				double fieldY = (double)(offsetY + (y * Hexagon.getHexheight() * 0.5));
+				FieldSprite grid = new FieldSprite(
 						resources.getHexagon(),
-						fieldX, fieldY, 0, parent));
+						fieldX, fieldY, 0, parent);
+				grid.setIsGrid(true);
+				fieldObjects.add(grid);
 			}
 		}
 	}
@@ -263,26 +186,12 @@ public class GameField implements Drawable, Movable
 	@Override
 	public void move(long delta)
 	{
-		for (int y = 0; y < terrains.length; y++)
-		{
-			for (int x = 0; x < terrains[y].length; x++)
-			{
-				terrains[y][x].move(delta);
-			}
-		}
 
-		for (ListIterator<Nebula> it = nebulae.listIterator();
+		for (ListIterator<FieldSprite> it = fieldObjects.listIterator();
 				it.hasNext();)
 		{
-			Nebula nebula = it.next();
-			nebula.move(delta);
-		}
-
-		for (ListIterator<Hexagon> it = hexGrid.listIterator();
-				it.hasNext();)
-		{
-			Hexagon hexGrid = it.next();
-			hexGrid.move(delta);
+			FieldSprite field = it.next();
+			field.move(delta);
 		}
 	}
 
